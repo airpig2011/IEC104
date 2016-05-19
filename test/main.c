@@ -15,14 +15,9 @@
 
 pthread_mutex_t mutex;
 pthread_mutex_t mutex2;
-
 int listenfd,connfd;
 int sfp,nfp;
-//int socketfd[MAXNUM] = {0};
-
 unsigned int StaCount = 0;
-
-
 
 void DumpHEX(uint8_t *buffer, uint32_t len){
 
