@@ -39,114 +39,7 @@ void Iec104_printhelp(void)
     printf("\n");
 }
 
-int main(int argc, char *argv[]){
 
-    pthread_t tid1,tid2; 
-    int err;  
-    void *tret;  
-    SocketArg_T Arg1;
-    unsigned int addr1 = 0,addr2 = 0;
-    int opt;  
-    char *optstring = "p:d:n:m:h";  
-    unsigned short port1 = 10000;
-    unsigned short port2 = 10001;
-    addr1 =  inet_addr("192.168.1.114");
-    addr2 =  inet_addr("192.168.1.114");
-    uint32_t Addr = 0,i;
-    void *ptemp = NULL;
-    
-    Arg1.port = 10000;
-    Arg1.addr = addr1;
-    
-    uint8_t mode = SOCKET_MODE_CLIENT;
-    uint8_t DstIp[32] = {0};
-    uint32_t Port = 0;
-    uint32_t NumSta = 0;
-    
-    ClientInfo_T clientinfo;
- 
-    Stm32f103RegisterIec10x(); 
-
-    while ((opt = getopt(argc, argv, optstring)) != -1){ 
-    #if 0 
-        printf("opt = %c\n", opt);  
-        printf("optarg = %s\n", optarg);  
-        printf("optind = %d\n", optind);  
-    #endif    
-        switch(opt){
-            case 'h':
-                Iec104_printhelp();
-                return;
-            case 'd':
-                if(optarg == NULL){
-                    printf("-d need argument \n");
-                    break;
-                }
-                Addr =  inet_addr(optarg);
-                strcpy(DstIp,optarg);
-                break;
-            case 'm':
-                if(strcmp("server", optarg) == 0)
-                    mode = SOCKET_MODE_SERVER;
-                else if(strcmp("client", optarg) == 0)
-                    mode = SOCKET_MODE_CLIENT;
-                else{
-                    LOG("mode error (%s) \n",optarg);
-                    return;
-                }
-                break; 
-            case 'p':
-                if(optarg == NULL){
-                    printf("-p need argument \n");
-                    break;
-                }
-                sscanf(optarg, "%d", &Port);
-                break;
-            case 'n':
-                if(optarg == NULL){
-                    printf("-n need argument \n");
-                    break;
-                }
-                sscanf(optarg, "%d", &NumSta);
-                break;
-            default :
-                break;
-        }
-    }  
-    
-    LOG("mode :(%d), port: (%d), ip: (%s), station num: (%d) \n",mode, Port,DstIp,NumSta);   
-    
-    pthread_mutex_init(&mutex,NULL);
-    pthread_mutex_init(&mutex2,NULL);
-    
-    if(NumSta<=0 || NumSta>10000){
-    
-        LOG("station number error:%d \n",NumSta);
-    } 
-    
-    if(mode == SOCKET_MODE_SERVER){
-        LOG("Iec104 Server Mode \n");
-        err=pthread_create(&tid1,NULL,Iec104_main,&Arg1);
-        if(err!=0)  {  
-            LOG("pthread_create error:%s\n",strerror(err));  
-            exit(-1);  
-        } 
-    }else if(mode == SOCKET_MODE_CLIENT){
-        LOG("Iec104 Client Mode \n");
-        for(i=0; i<NumSta; i++){
-            clientinfo.ClientId = i;
-            clientinfo.socketfd = 0;
-            err=pthread_create(&tid1,NULL,Iec104_Client,&clientinfo);
-            if(err!=0)  {  
-                printf("pthread_create error:%s\n",strerror(err));  
-                exit(-1);  
-            } 
-        }
-    }
-    while(1);
-
-    return 0;
-}
 
 void DumpHEX(uint8_t *buffer, uint32_t len){
 
@@ -315,4 +208,114 @@ void *Iec104_Client(void *arg)
     close(socketfd); 
  
     exit(0);  
+}
+
+
+int main(int argc, char *argv[]){
+
+  pthread_t tid1,tid2; 
+  int err;  
+  void *tret;  
+  SocketArg_T Arg1;
+  unsigned int addr1 = 0,addr2 = 0;
+  int opt;  
+  char *optstring = "p:d:n:m:h";  
+  unsigned short port1 = 10000;
+  unsigned short port2 = 10001;
+  addr1 =  inet_addr("192.168.1.114");
+  addr2 =  inet_addr("192.168.1.114");
+  uint32_t Addr = 0,i;
+  void *ptemp = NULL;
+  
+  Arg1.port = 10000;
+  Arg1.addr = addr1;
+  
+  uint8_t mode = SOCKET_MODE_CLIENT;
+  uint8_t DstIp[32] = {0};
+  uint32_t Port = 0;
+  uint32_t NumSta = 0;
+  
+  ClientInfo_T clientinfo;
+ 
+  Stm32f103RegisterIec10x(); 
+
+  while ((opt = getopt(argc, argv, optstring)) != -1){ 
+  #if 0 
+    printf("opt = %c\n", opt);  
+    printf("optarg = %s\n", optarg);  
+    printf("optind = %d\n", optind);  
+  #endif    
+    switch(opt){
+      case 'h':
+        Iec104_printhelp();
+        return;
+      case 'd':
+        if(optarg == NULL){
+          printf("-d need argument \n");
+          break;
+        }
+        Addr =  inet_addr(optarg);
+        strcpy(DstIp,optarg);
+        break;
+      case 'm':
+        if(strcmp("server", optarg) == 0)
+          mode = SOCKET_MODE_SERVER;
+        else if(strcmp("client", optarg) == 0)
+          mode = SOCKET_MODE_CLIENT;
+        else{
+          LOG("mode error (%s) \n",optarg);
+          return;
+        }
+        break; 
+      case 'p':
+        if(optarg == NULL){
+          printf("-p need argument \n");
+          break;
+        }
+        sscanf(optarg, "%d", &Port);
+        break;
+      case 'n':
+        if(optarg == NULL){
+          printf("-n need argument \n");
+          break;
+        }
+        sscanf(optarg, "%d", &NumSta);
+        break;
+      default :
+        break;
+    }
+  }  
+  
+  LOG("mode :(%d), port: (%d), ip: (%s), station num: (%d) \n",mode, Port,DstIp,NumSta);   
+  
+  pthread_mutex_init(&mutex,NULL);
+  pthread_mutex_init(&mutex2,NULL);
+  
+  if(NumSta<=0 || NumSta>10000){
+  
+    LOG("station number error:%d \n",NumSta);
+  } 
+  
+  if(mode == SOCKET_MODE_SERVER){
+    LOG("Iec104 Server Mode \n");
+    err=pthread_create(&tid1,NULL,Iec104_main,&Arg1);
+    if(err!=0)  {  
+      LOG("pthread_create error:%s\n",strerror(err));  
+      exit(-1);  
+    } 
+  }else if(mode == SOCKET_MODE_CLIENT){
+    LOG("Iec104 Client Mode \n");
+    for(i=0; i<NumSta; i++){
+      clientinfo.ClientId = i;
+      clientinfo.socketfd = 0;
+      err=pthread_create(&tid1,NULL,Iec104_Client,&clientinfo);
+      if(err!=0)  {  
+        printf("pthread_create error:%s\n",strerror(err));  
+        exit(-1);  
+      } 
+    }
+  }
+  while(1);
+
+  return 0;
 }
