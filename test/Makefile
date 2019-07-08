@@ -1,9 +1,9 @@
 
-TOPDIR = ../../../../../..
+TOPDIR = ../
 INSTALLDIR = /usr/sbin
 #LIBDIR = /lib/
-MODULE_PATH=$(TOPDIR)/Module/IEC10X
-APP_PATH=$(TOPDIR)/Product/PollutionFlashover/AccessDevice/code/TEST/Iec104
+MODULE_PATH=$(TOPDIR)/IEC10X
+APP_PATH=$(TOPDIR)/test
 
 CC = gcc
 
